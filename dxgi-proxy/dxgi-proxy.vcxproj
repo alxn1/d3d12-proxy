@@ -167,11 +167,18 @@
     <ClInclude Include="include\directx\d3dx12_resource_helpers.h" />
     <ClInclude Include="include\directx\d3dx12_root_signature.h" />
     <ClInclude Include="include\directx\d3dx12_state_object.h" />
-    <ClInclude Include="include\dxgi\dxgi_adapter.h" />
+    <ClInclude Include="include\dxgi\dxgi_proxy_log.h" />
+    <ClInclude Include="include\dxgi\dxgi_proxy_com_ptr.h" />
+    <ClInclude Include="include\dxgi\dxgi_proxy_object.h" />
+    <ClInclude Include="include\dxgi\dxgi_proxy_adapter.h" />
+    <ClInclude Include="include\dxgi\dxgi_proxy_factory.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="dxgi_proxy_log.cpp" />
+    <ClCompile Include="dxgi_proxy_adapter.cpp" />
+    <ClCompile Include="dxgi_proxy_factory.cpp" />
+    <ClCompile Include="dxgi_proxy_main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -180,7 +187,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source.def" />
+    <None Include="source.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

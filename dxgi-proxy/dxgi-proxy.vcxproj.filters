@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\dxgi\dxgi_adapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,12 +66,36 @@
     <ClInclude Include="include\directx\d3dx12_state_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dxgi_proxy_adapter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi_proxy_factory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi_proxy_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi_proxy_com_ptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="dxgi_proxy_log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="dxgi_proxy_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_proxy_adapter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_proxy_factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_proxy_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -82,7 +103,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source.def">
+    <None Include="source.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

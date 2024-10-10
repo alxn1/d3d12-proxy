@@ -6,10 +6,26 @@
 
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#include <dxgi1_6.h>
-#include <windows.h>
+#define DXGI_P_API STDMETHODCALLTYPE
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <unknwn.h>
+#include <dxgi1_6.h>
+
+#include <algorithm>
+#include <atomic>
+#include <cstring>
 #include <fstream>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+#include "dxgi_proxy_log.h"
+#include "dxgi_proxy_com_ptr.h"
+#include "dxgi_proxy_object.h"
+#include "dxgi_proxy_adapter.h"
+#include "dxgi_proxy_factory.h"
