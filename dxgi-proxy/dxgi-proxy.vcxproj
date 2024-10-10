@@ -151,9 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Detours.h" />
-    <ClInclude Include="dllmain.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="include\directx\d3d12.h" />
     <ClInclude Include="include\directx\d3d12compatibility.h" />
     <ClInclude Include="include\directx\d3d12sdklayers.h" />

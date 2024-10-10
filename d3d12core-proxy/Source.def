@@ -1,5 +1,0 @@
-LIBRARY "D3D12Core"
-
-EXPORTS
-    D3D12GetInterface @1
-    D3D12SDKVersion @2 DATA PRIVATE

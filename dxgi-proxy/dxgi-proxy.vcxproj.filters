@@ -69,13 +69,7 @@
     <ClInclude Include="include\directx\d3dx12_state_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dllmain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
