@@ -5,9 +5,9 @@ namespace dxgi_proxy {
 class Factory final : public Object<IDXGIFactory7>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(REFIID riid, void *original, void **out);
+	[[nodiscard]] static HRESULT wrap(const Config &config, REFIID riid, void *original, void **out);
 
-	explicit Factory(ComPtr<IUnknown> unknown);
+	Factory(const Config &config, ComPtr<IUnknown> unknown);
 
 	// IUnknown methods
 	HRESULT DXGI_P_API QueryInterface(REFIID riid, void **out) override;  // hijacked
@@ -78,6 +78,7 @@ public:
 	HRESULT DXGI_P_API UnregisterAdaptersChangedEvent(DWORD cookie) override;
 
 private:
+	const Config *config{nullptr};
 	const ComPtr<IUnknown> unknown;
 	const ComPtr<IDXGIObject> object;
 	const ComPtr<IDXGIFactory> factory;
@@ -88,6 +89,16 @@ private:
 	const ComPtr<IDXGIFactory5> factory5;
 	const ComPtr<IDXGIFactory6> factory6;
 	const ComPtr<IDXGIFactory7> factory7;
+
+	[[nodiscard]] IDXGIObject *getObject() const noexcept;
+	[[nodiscard]] IDXGIFactory *getFactory() const noexcept;
+	[[nodiscard]] IDXGIFactory1 *getFactory1() const noexcept;
+	[[nodiscard]] IDXGIFactory2 *getFactory2() const noexcept;
+	[[nodiscard]] IDXGIFactory3 *getFactory3() const noexcept;
+	[[nodiscard]] IDXGIFactory4 *getFactory4() const noexcept;
+	[[nodiscard]] IDXGIFactory5 *getFactory5() const noexcept;
+	[[nodiscard]] IDXGIFactory6 *getFactory6() const noexcept;
+	[[nodiscard]] IDXGIFactory7 *getFactory7() const noexcept;
 
 	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
 };

@@ -6,6 +6,7 @@
 
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS  // for INIReader.h
 #define DXGI_P_API STDMETHODCALLTYPE
 
 #define WIN32_LEAN_AND_MEAN
@@ -17,13 +18,20 @@
 #include <atomic>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <sstream>
+#include <stdarg.h>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
+#include "inireader/INIReader.h"
+
+#include "dxgi_proxy_conf.h"
 #include "dxgi_proxy_log.h"
 #include "dxgi_proxy_com_ptr.h"
 #include "dxgi_proxy_object.h"

@@ -1,43 +1,52 @@
 #include "pch.h"
 
+DXGI_P_LOG_SYSTEM(DXGI_PROXY);
+
 using namespace dxgi_proxy;
 
 namespace {
 
-HRESULT(WINAPI *pCreateDXGIFactory)(REFIID, void **) = nullptr;
-HRESULT(WINAPI *pCreateDXGIFactory1)(REFIID, void **) = nullptr;
-HRESULT(WINAPI *pCreateDXGIFactory2)(UINT, REFIID, void **) = nullptr;
-HRESULT(WINAPI *pDXGIDeclareAdapterRemovalSupport)() = nullptr;
-HRESULT(WINAPI *pDXGIGetDebugInterface1)(UINT, REFIID, void **) = nullptr;
+std::unique_ptr<Config> config;
+HRESULT(WINAPI *create_factory)(REFIID, void **) = nullptr;
+HRESULT(WINAPI *create_factory1)(REFIID, void **) = nullptr;
+HRESULT(WINAPI *create_factory2)(UINT, REFIID, void **) = nullptr;
+HRESULT(WINAPI *declare_adapter_removal_support)() = nullptr;
+HRESULT(WINAPI *get_debug_interface1)(UINT, REFIID, void **) = nullptr;
 
-[[nodiscard]] std::string dxgiModulePath()
+template<typename T>
+[[nodiscard]] T getProcAddress(HMODULE m, const char *name)
 {
-	char path[MAX_PATH];
-	GetSystemDirectory(path, sizeof(path) - 1);
-	return std::string{path} + "\\dxgi.dll";
+	return reinterpret_cast<T>(GetProcAddress(m, name));
 }
 
 void initialize()
 {
-	static std::once_flag gInitFlag;
+	static std::once_flag g_init_flag;
 
-	std::call_once(gInitFlag, [] {
-		HMODULE m = LoadLibrary("dxgi.o.dll");
-		if(!m) {
-			m = LoadLibrary(dxgiModulePath().data());
-			if(m) {
-#define GET_FN_PTR(name) reinterpret_cast<decltype(p##name)>(GetProcAddress(m, #name))
-				pCreateDXGIFactory = GET_FN_PTR(CreateDXGIFactory);
-				pCreateDXGIFactory1 = GET_FN_PTR(CreateDXGIFactory1);
-				pCreateDXGIFactory2 = GET_FN_PTR(CreateDXGIFactory2);
-				pDXGIDeclareAdapterRemovalSupport = GET_FN_PTR(DXGIDeclareAdapterRemovalSupport);
-				pDXGIGetDebugInterface1 = GET_FN_PTR(DXGIGetDebugInterface1);
-#undef GET_FN_PTR
-			} else {
-				log("DXGI", "can't load original dxgi.dll");
-			}
+	std::call_once(g_init_flag, [] {
+		config.reset(new Config{});
+		initLog(*config);
+		DXGI_P_LOGF("config:\n%s", config->toString().data());
+		DXGI_P_LOG("initialization...");
+
+		const auto &dxgi = config->dxgiSection();
+		if(const auto m = LoadLibrary(dxgi.dll_path.data())) {
+			create_factory = getProcAddress<decltype(create_factory)>(m, "CreateDXGIFactory");
+			create_factory1 = getProcAddress<decltype(create_factory1)>(m, "CreateDXGIFactory1");
+			create_factory2 = getProcAddress<decltype(create_factory2)>(m, "CreateDXGIFactory2");
+			get_debug_interface1 = getProcAddress<decltype(get_debug_interface1)>(m, "DXGIGetDebugInterface1");
+			declare_adapter_removal_support =
+			    getProcAddress<decltype(declare_adapter_removal_support)>(m, "DXGIDeclareAdapterRemovalSupport");
+		} else {
+			DXGI_P_LOGF("ERROR: can't load proxied dxgi dll at path: %s", dxgi.dll_path.data());
 		}
-		log("DXGI", "initialized");
+
+		DXGI_P_LOG("initialization complete:");
+		DXGI_P_LOGF("\tCreateDXGIFactory: %p", create_factory);
+		DXGI_P_LOGF("\tCreateDXGIFactory1: %p", create_factory1);
+		DXGI_P_LOGF("\tCreateDXGIFactory2: %p", create_factory2);
+		DXGI_P_LOGF("\tDXGIDeclareAdapterRemovalSupport: %p", declare_adapter_removal_support);
+		DXGI_P_LOGF("\tDXGIGetDebugInterface1: %p", get_debug_interface1);
 	});
 }
 
@@ -49,37 +58,55 @@ extern "C"
 HRESULT WINAPI CreateDXGIFactory(REFIID riid, void **out)
 {
 	initialize();
-	log("DXGI", "create factory");
-	const auto hr = pCreateDXGIFactory ? pCreateDXGIFactory(riid, out) : E_NOINTERFACE;
-	return hr == S_OK ? Factory::wrap(riid, *out, out) : hr;
+	DXGI_P_LOGF("CreateDXGIFactory call with '%s' riid", format(riid).data());
+	auto hr = create_factory ? create_factory(riid, out) : E_NOINTERFACE;
+	if(out && hr == S_OK) {
+		hr = Factory::wrap(*config, riid, *out, out);
+	}
+	DXGI_P_LOGF("CreateDXGIFactory call result: 0x%X", hr);
+	return hr;
 }
 
 HRESULT WINAPI CreateDXGIFactory1(REFIID riid, void **out)
 {
 	initialize();
-	log("DXGI", "create factory 1");
-	const auto hr = pCreateDXGIFactory1 ? pCreateDXGIFactory1(riid, out) : E_NOINTERFACE;
-	return hr == S_OK ? Factory::wrap(riid, *out, out) : hr;
+	DXGI_P_LOGF("CreateDXGIFactory1 call with '%s' riid", format(riid).data());
+	auto hr = create_factory1 ? create_factory1(riid, out) : E_NOINTERFACE;
+	if(out && hr == S_OK) {
+		hr = Factory::wrap(*config, riid, *out, out);
+	}
+	DXGI_P_LOGF("CreateDXGIFactory1 call result: 0x%X", hr);
+	return hr;
 }
 
 HRESULT WINAPI CreateDXGIFactory2(UINT flags, REFIID riid, void **out)
 {
 	initialize();
-	log("DXGI", "create factory 2");
-	const auto hr = pCreateDXGIFactory2 ? pCreateDXGIFactory2(flags, riid, out) : E_NOINTERFACE;
-	return hr == S_OK ? Factory::wrap(riid, *out, out) : hr;
+	DXGI_P_LOGF("CreateDXGIFactory2 call with '%s' riid", format(riid).data());
+	auto hr = create_factory2 ? create_factory2(flags, riid, out) : E_NOINTERFACE;
+	if(out && hr == S_OK) {
+		hr = Factory::wrap(*config, riid, *out, out);
+	}
+	DXGI_P_LOGF("CreateDXGIFactory2 call result: 0x%X", hr);
+	return hr;
 }
 
 HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
 {
 	initialize();
-	return pDXGIDeclareAdapterRemovalSupport ? pDXGIDeclareAdapterRemovalSupport() : E_NOINTERFACE;
+	DXGI_P_LOG("DXGIDeclareAdapterRemovalSupport call");
+	const auto hr = declare_adapter_removal_support ? declare_adapter_removal_support() : E_NOINTERFACE;
+	DXGI_P_LOGF("DXGIDeclareAdapterRemovalSupport call result: 0x%X", hr);
+	return hr;
 }
 
 HRESULT WINAPI DXGIGetDebugInterface1(UINT flags, REFIID riid, void **out)
 {
 	initialize();
-	return pDXGIGetDebugInterface1 ? pDXGIGetDebugInterface1(flags, riid, out) : E_NOINTERFACE;
+	DXGI_P_LOGF("DXGIGetDebugInterface1 call with 0x%X flags and '%s' riid", flags, format(riid).data());
+	const auto hr = get_debug_interface1 ? get_debug_interface1(flags, riid, out) : E_NOINTERFACE;
+	DXGI_P_LOGF("DXGIGetDebugInterface1 call result: 0x%X", hr);
+	return hr;
 }
 
 }  // extern "C"

@@ -5,9 +5,9 @@ namespace dxgi_proxy {
 class Adapter final : public Object<IDXGIAdapter4>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(ComPtr<IUnknown> parent, REFIID riid, void *original, void **out);
+	[[nodiscard]] static HRESULT wrap(const Config &config, ComPtr<IUnknown> parent, REFIID riid, void *original, void **out);
 
-	Adapter(ComPtr<IUnknown> parent, ComPtr<IUnknown> unknown);
+	Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> unknown);
 
 	// IUnknown methods
 	HRESULT DXGI_P_API QueryInterface(REFIID riid, void **out) override;  // hijacked
@@ -44,6 +44,7 @@ public:
 	HRESULT DXGI_P_API GetDesc3(DXGI_ADAPTER_DESC3 *out) override;  // hijacked
 
 private:
+	const Config *config{nullptr};
 	const ComPtr<IUnknown> parent;
 	const ComPtr<IUnknown> unknown;
 	const ComPtr<IDXGIObject> object;
@@ -52,6 +53,13 @@ private:
 	const ComPtr<IDXGIAdapter2> adapter2;
 	const ComPtr<IDXGIAdapter3> adapter3;
 	const ComPtr<IDXGIAdapter4> adapter4;
+
+	[[nodiscard]] IDXGIObject *getObject() const noexcept;
+	[[nodiscard]] IDXGIAdapter *getAdapter() const noexcept;
+	[[nodiscard]] IDXGIAdapter1 *getAdapter1() const noexcept;
+	[[nodiscard]] IDXGIAdapter2 *getAdapter2() const noexcept;
+	[[nodiscard]] IDXGIAdapter3 *getAdapter3() const noexcept;
+	[[nodiscard]] IDXGIAdapter4 *getAdapter4() const noexcept;
 
 	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
 };

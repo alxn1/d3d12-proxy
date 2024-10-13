@@ -81,11 +81,20 @@
 	<ClInclude Include="dxgi_proxy_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dxgi_proxy_conf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inireader/INIReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dxgi_proxy_conf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dxgi_proxy_log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
