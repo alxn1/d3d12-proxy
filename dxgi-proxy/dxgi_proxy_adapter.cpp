@@ -14,7 +14,7 @@ void applyOverride(const Config &config, T *info) noexcept
 			const std::wstring old_description = info->Description;
 			std::wstring new_description = *overrides.gpu_description;
 			if(new_description.size() >= sizeof(info->Description)) {
-				new_description.resize(sizeof(info->Description));
+				new_description.resize(sizeof(info->Description) - 1);
 			}
 			std::memset(info->Description, 0, sizeof(info->Description));
 			std::memcpy(info->Description, new_description.data(), new_description.size());
@@ -239,76 +239,6 @@ HRESULT DXGI_P_API Adapter::GetDesc3(DXGI_ADAPTER_DESC3 *out)
 }
 
 // utilities
-
-IDXGIObject *Adapter::getObject() const noexcept
-{
-	if(object) {
-		return object.get();
-	} else if(adapter) {
-		return adapter.get();
-	} else if(adapter1) {
-		return adapter1.get();
-	} else if(adapter2) {
-		return adapter2.get();
-	} else if(adapter3) {
-		return adapter3.get();
-	} else {
-		return adapter4.get();
-	}
-}
-
-IDXGIAdapter *Adapter::getAdapter() const noexcept
-{
-	if(adapter) {
-		return adapter.get();
-	} else if(adapter1) {
-		return adapter1.get();
-	} else if(adapter2) {
-		return adapter2.get();
-	} else if(adapter3) {
-		return adapter3.get();
-	} else {
-		return adapter4.get();
-	}
-}
-
-IDXGIAdapter1 *Adapter::getAdapter1() const noexcept
-{
-	if(adapter1) {
-		return adapter1.get();
-	} else if(adapter2) {
-		return adapter2.get();
-	} else if(adapter3) {
-		return adapter3.get();
-	} else {
-		return adapter4.get();
-	}
-}
-
-IDXGIAdapter2 *Adapter::getAdapter2() const noexcept
-{
-	if(adapter2) {
-		return adapter2.get();
-	} else if(adapter3) {
-		return adapter3.get();
-	} else {
-		return adapter4.get();
-	}
-}
-
-IDXGIAdapter3 *Adapter::getAdapter3() const noexcept
-{
-	if(adapter3) {
-		return adapter3.get();
-	} else {
-		return adapter4.get();
-	}
-}
-
-IDXGIAdapter4 *Adapter::getAdapter4() const noexcept
-{
-	return adapter4.get();
-}
 
 bool Adapter::isWrapped(REFIID riid) const noexcept
 {

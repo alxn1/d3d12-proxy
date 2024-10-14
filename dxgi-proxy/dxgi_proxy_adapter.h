@@ -54,12 +54,12 @@ private:
 	const ComPtr<IDXGIAdapter3> adapter3;
 	const ComPtr<IDXGIAdapter4> adapter4;
 
-	[[nodiscard]] IDXGIObject *getObject() const noexcept;
-	[[nodiscard]] IDXGIAdapter *getAdapter() const noexcept;
-	[[nodiscard]] IDXGIAdapter1 *getAdapter1() const noexcept;
-	[[nodiscard]] IDXGIAdapter2 *getAdapter2() const noexcept;
-	[[nodiscard]] IDXGIAdapter3 *getAdapter3() const noexcept;
-	[[nodiscard]] IDXGIAdapter4 *getAdapter4() const noexcept;
+	[[nodiscard]] IDXGIObject *getObject() const noexcept { return firstOf<IDXGIObject>(object, adapter, adapter1, adapter2, adapter3, adapter4); }
+	[[nodiscard]] IDXGIAdapter *getAdapter() const noexcept { return firstOf<IDXGIAdapter>(adapter, adapter1, adapter2, adapter3, adapter4); }
+	[[nodiscard]] IDXGIAdapter1 *getAdapter1() const noexcept { return firstOf<IDXGIAdapter1>(adapter1, adapter2, adapter3, adapter4); }
+	[[nodiscard]] IDXGIAdapter2 *getAdapter2() const noexcept { return firstOf<IDXGIAdapter2>(adapter2, adapter3, adapter4); }
+	[[nodiscard]] IDXGIAdapter3 *getAdapter3() const noexcept { return firstOf<IDXGIAdapter3>(adapter3, adapter4); }
+	[[nodiscard]] IDXGIAdapter4 *getAdapter4() const noexcept { return firstOf<IDXGIAdapter4>(adapter4); }
 
 	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
 };

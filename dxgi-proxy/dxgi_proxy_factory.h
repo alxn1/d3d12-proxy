@@ -90,15 +90,15 @@ private:
 	const ComPtr<IDXGIFactory6> factory6;
 	const ComPtr<IDXGIFactory7> factory7;
 
-	[[nodiscard]] IDXGIObject *getObject() const noexcept;
-	[[nodiscard]] IDXGIFactory *getFactory() const noexcept;
-	[[nodiscard]] IDXGIFactory1 *getFactory1() const noexcept;
-	[[nodiscard]] IDXGIFactory2 *getFactory2() const noexcept;
-	[[nodiscard]] IDXGIFactory3 *getFactory3() const noexcept;
-	[[nodiscard]] IDXGIFactory4 *getFactory4() const noexcept;
-	[[nodiscard]] IDXGIFactory5 *getFactory5() const noexcept;
-	[[nodiscard]] IDXGIFactory6 *getFactory6() const noexcept;
-	[[nodiscard]] IDXGIFactory7 *getFactory7() const noexcept;
+	[[nodiscard]] IDXGIObject *getObject() const noexcept { return firstOf<IDXGIObject>(object, factory, factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory *getFactory() const noexcept { return firstOf<IDXGIFactory>(factory, factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory1 *getFactory1() const noexcept { return firstOf<IDXGIFactory1>(factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory2 *getFactory2() const noexcept { return firstOf<IDXGIFactory2>(factory2, factory3, factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory3 *getFactory3() const noexcept { return firstOf<IDXGIFactory3>(factory3, factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory4 *getFactory4() const noexcept { return firstOf<IDXGIFactory4>(factory4, factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory5 *getFactory5() const noexcept { return firstOf<IDXGIFactory5>(factory5, factory6, factory7); }
+	[[nodiscard]] IDXGIFactory6 *getFactory6() const noexcept { return firstOf<IDXGIFactory6>(factory6, factory7); }
+	[[nodiscard]] IDXGIFactory7 *getFactory7() const noexcept { return firstOf<IDXGIFactory7>(factory7); }
 
 	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
 };

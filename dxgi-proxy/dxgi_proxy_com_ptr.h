@@ -53,4 +53,16 @@ template<typename T, typename... A>
 	return addRef(new T{std::forward<A>(a)...});
 }
 
+template<typename T, typename A1, typename... A>
+[[nodiscard]] T *firstOf(const ComPtr<A1> &a1, const ComPtr<A> &...a) noexcept
+{
+	if constexpr(!sizeof...(A)) {
+		return a1.get();
+	} else if(a1.get()) {
+		return a1.get();
+	} else {
+		return firstOf<T>(a...);
+	}
+}
+
 }  // namespace dxgi_proxy
