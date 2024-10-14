@@ -23,6 +23,8 @@ public:
 	struct DXGI final
 	{
 		std::string dll_path;
+		bool enable_factory_proxy{true};
+		bool enable_adapter_proxy{true};
 	};
 
 	explicit Config(const std::string &ini_file_path = sIniFilePath);

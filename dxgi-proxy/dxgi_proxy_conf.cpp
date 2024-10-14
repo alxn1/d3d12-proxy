@@ -80,6 +80,8 @@ Config::Config(const std::string &ini_file_path)
 		override_section.gpu_vendor_id = getOptionalUInt(ini, "override", "gpu_vendor_id");
 		override_section.gpu_device_id = getOptionalUInt(ini, "override", "gpu_device_id");
 		override_section.gpu_dedicated_memory_size = getOptionalSizeT(ini, "override", "gpu_dedicated_memory_size");
+		dxgi_section.enable_factory_proxy = ini.GetBoolean("dxgi", "enable_factory_proxy", true);
+		dxgi_section.enable_adapter_proxy = ini.GetBoolean("dxgi", "enable_adapter_proxy", true);
 		if(auto path = getOptionalString(ini, "dxgi", "dll_path")) {
 			dxgi_section.dll_path = std::move(*path);
 		}
@@ -109,6 +111,8 @@ Config::Config(const std::string &ini_file_path)
 	}
 	s << "[dxgi]\n";
 	s << "dll_path=" << dxgi_section.dll_path << "\n";
+	s << "enable_factory_proxy=" << (dxgi_section.enable_factory_proxy ? "true" : "false") << "\n";
+	s << "enable_adapter_proxy=" << (dxgi_section.enable_adapter_proxy ? "true" : "false") << "\n";
 
 	return std::move(s).str();
 }

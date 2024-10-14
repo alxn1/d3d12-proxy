@@ -60,7 +60,7 @@ HRESULT WINAPI CreateDXGIFactory(REFIID riid, void **out)
 	initialize();
 	DXGI_P_LOGF("CreateDXGIFactory call with '%s' riid", format(riid).data());
 	auto hr = create_factory ? create_factory(riid, out) : E_NOINTERFACE;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_factory_proxy) {
 		hr = Factory::wrap(*config, riid, *out, out);
 	}
 	DXGI_P_LOGF("CreateDXGIFactory call result: 0x%X", hr);
@@ -72,7 +72,7 @@ HRESULT WINAPI CreateDXGIFactory1(REFIID riid, void **out)
 	initialize();
 	DXGI_P_LOGF("CreateDXGIFactory1 call with '%s' riid", format(riid).data());
 	auto hr = create_factory1 ? create_factory1(riid, out) : E_NOINTERFACE;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_factory_proxy) {
 		hr = Factory::wrap(*config, riid, *out, out);
 	}
 	DXGI_P_LOGF("CreateDXGIFactory1 call result: 0x%X", hr);
@@ -84,7 +84,7 @@ HRESULT WINAPI CreateDXGIFactory2(UINT flags, REFIID riid, void **out)
 	initialize();
 	DXGI_P_LOGF("CreateDXGIFactory2 call with '%s' riid", format(riid).data());
 	auto hr = create_factory2 ? create_factory2(flags, riid, out) : E_NOINTERFACE;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_factory_proxy) {
 		hr = Factory::wrap(*config, riid, *out, out);
 	}
 	DXGI_P_LOGF("CreateDXGIFactory2 call result: 0x%X", hr);

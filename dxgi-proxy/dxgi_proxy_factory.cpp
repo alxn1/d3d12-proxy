@@ -96,7 +96,7 @@ HRESULT DXGI_P_API Factory::EnumAdapters(UINT adapter, IDXGIAdapter **out)
 	DXGI_P_LOGF("EnumAdapters call with '%u' index", adapter);
 	auto *f = getFactory();
 	auto hr = f ? f->EnumAdapters(adapter, out) : E_NOTIMPL;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
 		hr = Adapter::wrap(
 		    *config, ComPtr<IUnknown>{this}, __uuidof(IDXGIAdapter), static_cast<void *>(*out), reinterpret_cast<void **>(out));
 	}
@@ -135,7 +135,7 @@ HRESULT DXGI_P_API Factory::EnumAdapters1(UINT adapter, IDXGIAdapter1 **out)
 	DXGI_P_LOGF("EnumAdapters1 call with '%u' index", adapter);
 	auto *f = getFactory1();
 	auto hr = f ? f->EnumAdapters1(adapter, out) : E_NOTIMPL;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
 		hr = Adapter::wrap(
 		    *config, ComPtr<IUnknown>{this}, __uuidof(IDXGIAdapter1), static_cast<void *>(*out), reinterpret_cast<void **>(out));
 	}
@@ -246,7 +246,7 @@ HRESULT DXGI_P_API Factory::EnumAdapterByLuid(LUID luid, REFIID riid, void **out
 	DXGI_P_LOGF("EnumAdapterByLuid call with '%s' riid", format(riid).data());
 	auto *f = getFactory4();
 	auto hr = f ? f->EnumAdapterByLuid(luid, riid, out) : E_NOTIMPL;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
 		hr = Adapter::wrap(*config, ComPtr<IUnknown>{this}, riid, *out, out);
 	}
 	DXGI_P_LOGF("EnumAdapterByLuid call result: 0x%X", hr);
@@ -274,7 +274,7 @@ HRESULT DXGI_P_API Factory::EnumAdapterByGpuPreference(UINT adapter, DXGI_GPU_PR
 	DXGI_P_LOGF("EnumAdapterByGpuPreference call with '%s' riid", format(riid).data());
 	auto *f = getFactory6();
 	auto hr = f ? f->EnumAdapterByGpuPreference(adapter, preference, riid, out) : E_NOTIMPL;
-	if(out && hr == S_OK) {
+	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
 		hr = Adapter::wrap(*config, ComPtr<IUnknown>{this}, riid, *out, out);
 	}
 	DXGI_P_LOGF("EnumAdapterByGpuPreference call result: 0x%X", hr);

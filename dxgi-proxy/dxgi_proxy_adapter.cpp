@@ -11,29 +11,26 @@ void applyOverride(const Config &config, T *info) noexcept
 	if(info) {
 		const auto &overrides = config.overrideSection();
 		if(overrides.gpu_description) {
-			const std::wstring old_description = info->Description;
 			std::wstring new_description = *overrides.gpu_description;
 			if(new_description.size() >= sizeof(info->Description)) {
 				new_description.resize(sizeof(info->Description) - 1);
 			}
+			DXGI_P_LOGF("override GPU description from '%ls' to '%ls'", info->Description, new_description.data());
 			std::memset(info->Description, 0, sizeof(info->Description));
 			std::memcpy(info->Description, new_description.data(), new_description.size());
-			DXGI_P_LOGF("override GPU description from '%ls' to '%ls'", old_description.data(), new_description.data());
 		}
 		if(overrides.gpu_vendor_id) {
-			const auto old_vendor_id = info->VendorId;
+			DXGI_P_LOGF("override GPU vendor id from 0x%04X to 0x%04X", info->VendorId, *overrides.gpu_vendor_id);
 			info->VendorId = *overrides.gpu_vendor_id;
-			DXGI_P_LOGF("override GPU vendor id from 0x%04X to 0x%04X", old_vendor_id, *overrides.gpu_vendor_id);
 		}
 		if(overrides.gpu_device_id) {
-			const auto old_device_id = info->DeviceId;
+			DXGI_P_LOGF("override GPU device id from 0x%04X to 0x%04X", info->DeviceId, *overrides.gpu_device_id);
 			info->DeviceId = *overrides.gpu_device_id;
-			DXGI_P_LOGF("override GPU device id from 0x%04X to 0x%04X", old_device_id, *overrides.gpu_device_id);
 		}
 		if(overrides.gpu_dedicated_memory_size) {
-			const auto old_mem_size = info->DedicatedVideoMemory;
+			DXGI_P_LOGF(
+			    "override dedicated video memory size from %llu to %llu", info->DedicatedVideoMemory, *overrides.gpu_dedicated_memory_size);
 			info->DedicatedVideoMemory = *overrides.gpu_dedicated_memory_size;
-			DXGI_P_LOGF("override dedicated video memory size from %llu to %llu", old_mem_size, *overrides.gpu_dedicated_memory_size);
 		}
 	}
 }
@@ -195,10 +192,8 @@ HRESULT DXGI_P_API Adapter::QueryVideoMemoryInfo(UINT index, DXGI_MEMORY_SEGMENT
 	const auto hr = a ? a->QueryVideoMemoryInfo(index, group, out) : E_NOTIMPL;
 	if(out && group == DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL && hr == S_OK) {
 		if(const auto &overrides = config->overrideSection(); overrides.gpu_dedicated_memory_size) {
-			const auto old_mem_size = out->Budget;
+			DXGI_P_LOGF("override dedicated video memory size from %llu to %llu (QVMI)", out->Budget, *overrides.gpu_dedicated_memory_size);
 			out->Budget = *overrides.gpu_dedicated_memory_size;
-			DXGI_P_LOGF(
-			    "override dedicated video memory size from %llu to %llu (QVMI)", old_mem_size, *overrides.gpu_dedicated_memory_size);
 		}
 	}
 	DXGI_P_LOGF("QueryVideoMemoryInfo call result: 0x%X", hr);
