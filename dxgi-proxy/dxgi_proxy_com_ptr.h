@@ -30,7 +30,7 @@ template<typename T, typename U>
 }
 
 template<typename T>
-[[nodiscard]] auto addRef(ComPtr<T> &obj) noexcept
+[[nodiscard]] auto addRef(const ComPtr<T> &obj) noexcept
 {
 	if(obj) {
 		obj->AddRef();
@@ -56,9 +56,10 @@ template<typename T, typename... A>
 template<typename T, typename A1, typename... A>
 [[nodiscard]] T *firstOf(const ComPtr<A1> &a1, const ComPtr<A> &...a) noexcept
 {
-	if constexpr(!sizeof...(A)) {
+	constexpr auto next_a = sizeof...(A);
+	if constexpr(!next_a) {
 		return a1.get();
-	} else if(a1.get()) {
+	} else if(a1) {
 		return a1.get();
 	} else {
 		return firstOf<T>(a...);

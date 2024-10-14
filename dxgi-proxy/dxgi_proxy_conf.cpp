@@ -62,11 +62,11 @@ namespace {
 	return std::nullopt;
 }
 
-[[nodiscard]] std::string defaultDxgiDllPath()
+[[nodiscard]] std::string systemDirPath()
 {
 	char path[MAX_PATH]{};
 	GetSystemDirectory(path, sizeof(path) - 1);
-	return std::string{path} + "\\dxgi.dll";
+	return {path};
 }
 
 }  // namespace
@@ -87,11 +87,11 @@ Config::Config(const std::string &ini_file_path)
 		}
 	}
 	if(dxgi_section.dll_path.empty()) {
-		dxgi_section.dll_path = defaultDxgiDllPath();
+		dxgi_section.dll_path = systemDirPath() + "\\dxgi.dll";
 	}
 }
 
-[[nodiscard]] std::string Config::toString() const
+std::string Config::toString() const
 {
 	std::ostringstream s;
 	s << "[log]\n";

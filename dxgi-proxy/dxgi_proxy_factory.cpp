@@ -57,7 +57,7 @@ HRESULT DXGI_P_API Factory::QueryInterface(REFIID riid, void **out)
 		return S_OK;
 	} else {
 		DXGI_P_LOG("unknown/unsupported interface, call original object");
-		const auto hr = object ? object->QueryInterface(riid, out) : E_NOINTERFACE;
+		const auto hr = unknown ? unknown->QueryInterface(riid, out) : E_NOINTERFACE;
 		DXGI_P_LOGF("QueryInterface call result: 0x%X", hr);
 		return hr;
 	}
@@ -97,8 +97,11 @@ HRESULT DXGI_P_API Factory::EnumAdapters(UINT adapter, IDXGIAdapter **out)
 	auto *f = getFactory();
 	auto hr = f ? f->EnumAdapters(adapter, out) : E_NOTIMPL;
 	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
-		hr = Adapter::wrap(
-		    *config, ComPtr<IUnknown>{this}, __uuidof(IDXGIAdapter), static_cast<void *>(*out), reinterpret_cast<void **>(out));
+		hr = Adapter::wrap(*config,
+		                   addRef(static_cast<IUnknown *>(this)),
+		                   __uuidof(IDXGIAdapter),
+		                   static_cast<void *>(*out),
+		                   reinterpret_cast<void **>(out));
 	}
 	DXGI_P_LOGF("EnumAdapters call result: 0x%X", hr);
 	return hr;
@@ -136,8 +139,11 @@ HRESULT DXGI_P_API Factory::EnumAdapters1(UINT adapter, IDXGIAdapter1 **out)
 	auto *f = getFactory1();
 	auto hr = f ? f->EnumAdapters1(adapter, out) : E_NOTIMPL;
 	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
-		hr = Adapter::wrap(
-		    *config, ComPtr<IUnknown>{this}, __uuidof(IDXGIAdapter1), static_cast<void *>(*out), reinterpret_cast<void **>(out));
+		hr = Adapter::wrap(*config,
+		                   addRef(static_cast<IUnknown *>(this)),
+		                   __uuidof(IDXGIAdapter1),
+		                   static_cast<void *>(*out),
+		                   reinterpret_cast<void **>(out));
 	}
 	DXGI_P_LOGF("EnumAdapters1 call result: 0x%X", hr);
 	return hr;
@@ -247,7 +253,7 @@ HRESULT DXGI_P_API Factory::EnumAdapterByLuid(LUID luid, REFIID riid, void **out
 	auto *f = getFactory4();
 	auto hr = f ? f->EnumAdapterByLuid(luid, riid, out) : E_NOTIMPL;
 	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
-		hr = Adapter::wrap(*config, ComPtr<IUnknown>{this}, riid, *out, out);
+		hr = Adapter::wrap(*config, addRef(static_cast<IUnknown *>(this)), riid, *out, out);
 	}
 	DXGI_P_LOGF("EnumAdapterByLuid call result: 0x%X", hr);
 	return hr;
@@ -275,7 +281,7 @@ HRESULT DXGI_P_API Factory::EnumAdapterByGpuPreference(UINT adapter, DXGI_GPU_PR
 	auto *f = getFactory6();
 	auto hr = f ? f->EnumAdapterByGpuPreference(adapter, preference, riid, out) : E_NOTIMPL;
 	if(out && hr == S_OK && config->dxgiSection().enable_adapter_proxy) {
-		hr = Adapter::wrap(*config, ComPtr<IUnknown>{this}, riid, *out, out);
+		hr = Adapter::wrap(*config, addRef(static_cast<IUnknown *>(this)), riid, *out, out);
 	}
 	DXGI_P_LOGF("EnumAdapterByGpuPreference call result: 0x%X", hr);
 	return hr;
@@ -302,23 +308,23 @@ bool Factory::isWrapped(REFIID riid) const noexcept
 	if(riid == __uuidof(IUnknown)) {
 		return static_cast<bool>(unknown);
 	} else if(riid == __uuidof(IDXGIObject)) {
-		return static_cast<bool>(object);
+		return getObject();
 	} else if(riid == __uuidof(IDXGIFactory)) {
-		return static_cast<bool>(factory);
+		return getFactory();
 	} else if(riid == __uuidof(IDXGIFactory1)) {
-		return static_cast<bool>(factory1);
+		return getFactory1();
 	} else if(riid == __uuidof(IDXGIFactory2)) {
-		return static_cast<bool>(factory2);
+		return getFactory2();
 	} else if(riid == __uuidof(IDXGIFactory3)) {
-		return static_cast<bool>(factory3);
+		return getFactory3();
 	} else if(riid == __uuidof(IDXGIFactory4)) {
-		return static_cast<bool>(factory4);
+		return getFactory4();
 	} else if(riid == __uuidof(IDXGIFactory5)) {
-		return static_cast<bool>(factory5);
+		return getFactory5();
 	} else if(riid == __uuidof(IDXGIFactory6)) {
-		return static_cast<bool>(factory6);
+		return getFactory6();
 	} else if(riid == __uuidof(IDXGIFactory7)) {
-		return static_cast<bool>(factory7);
+		return getFactory7();
 	} else {
 		return false;
 	}

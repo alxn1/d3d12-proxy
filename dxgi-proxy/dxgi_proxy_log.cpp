@@ -5,18 +5,18 @@ DXGI_P_LOG_SYSTEM(LOG);
 namespace dxgi_proxy {
 namespace {
 
-constexpr char sLogFilePath[] = "dxgi_proxy.log";
+inline static const std::string sDxgiLogFilePath = "dxgi_proxy.log";
 
-std::mutex mutex;
-std::unique_ptr<std::ofstream> out;
+std::mutex sMutex;
+std::unique_ptr<std::ofstream> sOut;
 
 }  // namespace
 
 void initLog(const Config &config)
 {
 	if(config.logSection().enable) {
-		std::unique_lock lock{mutex};
-		out.reset(new std::ofstream{sLogFilePath});
+		std::unique_lock lock{sMutex};
+		sOut.reset(new std::ofstream{sDxgiLogFilePath});
 		lock.unlock();
 		log("logging is enabled");
 	}
@@ -24,13 +24,13 @@ void initLog(const Config &config)
 
 bool isLogEnabled() noexcept
 {
-	return static_cast<bool>(out);
+	return static_cast<bool>(sOut);
 }
 
 void log(const std::string &msg)
 {
-	std::unique_lock lock{mutex};
-	*out << msg << std::endl;
+	std::unique_lock lock{sMutex};
+	*sOut << msg << std::endl;
 }
 
 std::string format(const char *format, ...)

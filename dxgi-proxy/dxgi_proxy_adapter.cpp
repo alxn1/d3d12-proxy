@@ -85,7 +85,7 @@ HRESULT DXGI_P_API Adapter::QueryInterface(REFIID riid, void **out)
 		return S_OK;
 	} else {
 		DXGI_P_LOG("unknown/unsupported interface, call original object");
-		const auto hr = object ? object->QueryInterface(riid, out) : E_NOINTERFACE;
+		const auto hr = unknown ? unknown->QueryInterface(riid, out) : E_NOINTERFACE;
 		DXGI_P_LOGF("QueryInterface call result: 0x%X", hr);
 		return hr;
 	}
@@ -240,17 +240,17 @@ bool Adapter::isWrapped(REFIID riid) const noexcept
 	if(riid == __uuidof(IUnknown)) {
 		return static_cast<bool>(unknown);
 	} else if(riid == __uuidof(IDXGIObject)) {
-		return static_cast<bool>(object);
+		return getObject();
 	} else if(riid == __uuidof(IDXGIAdapter)) {
-		return static_cast<bool>(adapter);
+		return getAdapter();
 	} else if(riid == __uuidof(IDXGIAdapter1)) {
-		return static_cast<bool>(adapter1);
+		return getAdapter1();
 	} else if(riid == __uuidof(IDXGIAdapter2)) {
-		return static_cast<bool>(adapter2);
+		return getAdapter2();
 	} else if(riid == __uuidof(IDXGIAdapter3)) {
-		return static_cast<bool>(adapter3);
+		return getAdapter3();
 	} else if(riid == __uuidof(IDXGIAdapter4)) {
-		return static_cast<bool>(adapter4);
+		return getAdapter4();
 	} else {
 		return false;
 	}
