@@ -6,6 +6,10 @@ template<typename T>
 class Object : public T
 {
 public:
+	Object() = default;
+	Object(const Object &) = delete;
+	Object &operator=(const Object &) = delete;
+
 	// IUnknown common part
 	ULONG DXGI_P_API AddRef() override { return ++ref_count; }
 	ULONG DXGI_P_API Release() override

@@ -78,10 +78,16 @@
     <ClInclude Include="dxgi_proxy_com_ptr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dxgi_proxy_com_object_chain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
 	<ClInclude Include="dxgi_proxy_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dxgi_proxy_conf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi_proxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inireader/INIReader.h">
@@ -102,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dxgi_proxy_factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_proxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dxgi_proxy_main.cpp">

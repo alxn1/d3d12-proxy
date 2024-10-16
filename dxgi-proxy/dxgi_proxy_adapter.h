@@ -5,7 +5,7 @@ namespace dxgi_proxy {
 class Adapter final : public Object<IDXGIAdapter4>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(const Config &config, ComPtr<IUnknown> parent, REFIID riid, void *original, void **out);
+	[[nodiscard]] static HRESULT wrap(const Config &config, ComPtr<IUnknown> parent, REFIID riid, void **in_out);
 
 	Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> unknown);
 
@@ -44,24 +44,20 @@ public:
 	HRESULT DXGI_P_API GetDesc3(DXGI_ADAPTER_DESC3 *out) override;  // hijacked
 
 private:
+	using AdapterChain = ComObjectChain<IUnknown, IDXGIObject, IDXGIAdapter, IDXGIAdapter1, IDXGIAdapter2, IDXGIAdapter3, IDXGIAdapter4>;
+
 	const Config *config{nullptr};
 	const ComPtr<IUnknown> parent;
-	const ComPtr<IUnknown> unknown;
-	const ComPtr<IDXGIObject> object;
-	const ComPtr<IDXGIAdapter> adapter;
-	const ComPtr<IDXGIAdapter1> adapter1;
-	const ComPtr<IDXGIAdapter2> adapter2;
-	const ComPtr<IDXGIAdapter3> adapter3;
-	const ComPtr<IDXGIAdapter4> adapter4;
+	const AdapterChain chain;
+	const bool overrides_disabled{true};
 
-	[[nodiscard]] IDXGIObject *getObject() const noexcept { return firstOf<IDXGIObject>(object, adapter, adapter1, adapter2, adapter3, adapter4); }
-	[[nodiscard]] IDXGIAdapter *getAdapter() const noexcept { return firstOf<IDXGIAdapter>(adapter, adapter1, adapter2, adapter3, adapter4); }
-	[[nodiscard]] IDXGIAdapter1 *getAdapter1() const noexcept { return firstOf<IDXGIAdapter1>(adapter1, adapter2, adapter3, adapter4); }
-	[[nodiscard]] IDXGIAdapter2 *getAdapter2() const noexcept { return firstOf<IDXGIAdapter2>(adapter2, adapter3, adapter4); }
-	[[nodiscard]] IDXGIAdapter3 *getAdapter3() const noexcept { return firstOf<IDXGIAdapter3>(adapter3, adapter4); }
-	[[nodiscard]] IDXGIAdapter4 *getAdapter4() const noexcept { return firstOf<IDXGIAdapter4>(adapter4); }
+	template<typename T>
+	[[nodiscard]] T &get() const noexcept;
+	[[nodiscard]] bool isIntegrated() const noexcept;
 
-	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
+	template<typename T>
+	void postprocess(T &info) const;
+	void postprocess(DXGI_QUERY_VIDEO_MEMORY_INFO &info) const;
 };
 
 }  // namespace dxgi_proxy

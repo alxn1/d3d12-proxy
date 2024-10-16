@@ -48,7 +48,7 @@ namespace {
 
 [[nodiscard]] std::optional<UINT> getOptionalUInt(const INIReader &ini, const std::string &section, const std::string &name)
 {
-	if(const auto v = ini.GetInteger(section, name, 0); v) {
+	if(const auto v = ini.GetInteger(section, name, -1); v >= 0) {
 		return {static_cast<UINT>(v)};
 	}
 	return std::nullopt;
@@ -56,7 +56,7 @@ namespace {
 
 [[nodiscard]] std::optional<SIZE_T> getOptionalSizeT(const INIReader &ini, const std::string &section, const std::string &name)
 {
-	if(const auto v = ini.GetInteger(section, name, 0); v) {
+	if(const auto v = ini.GetInteger(section, name, -1); v >= 0) {
 		return {static_cast<SIZE_T>(v)};
 	}
 	return std::nullopt;
@@ -76,6 +76,7 @@ Config::Config(const std::string &ini_file_path)
 	INIReader ini{ini_file_path};
 	if(!ini.ParseError()) {
 		log_section.enable = ini.GetBoolean("log", "enable", false);
+		override_section.only_igpu = ini.GetBoolean("override", "only_igpu", false);
 		override_section.gpu_description = getOptionalWString(ini, "override", "gpu_description");
 		override_section.gpu_vendor_id = getOptionalUInt(ini, "override", "gpu_vendor_id");
 		override_section.gpu_device_id = getOptionalUInt(ini, "override", "gpu_device_id");
@@ -97,6 +98,7 @@ std::string Config::toString() const
 	s << "[log]\n";
 	s << "enable=" << (log_section.enable ? "true" : "false") << "\n";
 	s << "[override]\n";
+	s << "only_igpu=" << (override_section.only_igpu ? "true" : "false") << "\n";
 	if(override_section.gpu_description) {
 		s << "gpu_description=" << cvt(*override_section.gpu_description) << "\n";
 	}
@@ -113,7 +115,6 @@ std::string Config::toString() const
 	s << "dll_path=" << dxgi_section.dll_path << "\n";
 	s << "enable_factory_proxy=" << (dxgi_section.enable_factory_proxy ? "true" : "false") << "\n";
 	s << "enable_adapter_proxy=" << (dxgi_section.enable_adapter_proxy ? "true" : "false") << "\n";
-
 	return std::move(s).str();
 }
 

@@ -14,6 +14,7 @@ public:
 
 	struct Override final
 	{
+		bool only_igpu{false};
 		std::optional<std::wstring> gpu_description;
 		std::optional<UINT> gpu_vendor_id;
 		std::optional<UINT> gpu_device_id;

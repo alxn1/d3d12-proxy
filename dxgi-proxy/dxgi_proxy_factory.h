@@ -5,7 +5,7 @@ namespace dxgi_proxy {
 class Factory final : public Object<IDXGIFactory7>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(const Config &config, REFIID riid, void *original, void **out);
+	[[nodiscard]] static HRESULT wrap(const Config &config, REFIID riid, void **in_out);
 
 	Factory(const Config &config, ComPtr<IUnknown> unknown);
 
@@ -78,29 +78,23 @@ public:
 	HRESULT DXGI_P_API UnregisterAdaptersChangedEvent(DWORD cookie) override;
 
 private:
+	using FactoryChain = ComObjectChain<IUnknown,
+	                                    IDXGIObject,
+	                                    IDXGIFactory,
+	                                    IDXGIFactory1,
+	                                    IDXGIFactory2,
+	                                    IDXGIFactory3,
+	                                    IDXGIFactory4,
+	                                    IDXGIFactory5,
+	                                    IDXGIFactory6,
+	                                    IDXGIFactory7>;
+
 	const Config *config{nullptr};
-	const ComPtr<IUnknown> unknown;
-	const ComPtr<IDXGIObject> object;
-	const ComPtr<IDXGIFactory> factory;
-	const ComPtr<IDXGIFactory1> factory1;
-	const ComPtr<IDXGIFactory2> factory2;
-	const ComPtr<IDXGIFactory3> factory3;
-	const ComPtr<IDXGIFactory4> factory4;
-	const ComPtr<IDXGIFactory5> factory5;
-	const ComPtr<IDXGIFactory6> factory6;
-	const ComPtr<IDXGIFactory7> factory7;
+	const FactoryChain chain;
 
-	[[nodiscard]] IDXGIObject *getObject() const noexcept { return firstOf<IDXGIObject>(object, factory, factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory *getFactory() const noexcept { return firstOf<IDXGIFactory>(factory, factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory1 *getFactory1() const noexcept { return firstOf<IDXGIFactory1>(factory1, factory2, factory3, factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory2 *getFactory2() const noexcept { return firstOf<IDXGIFactory2>(factory2, factory3, factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory3 *getFactory3() const noexcept { return firstOf<IDXGIFactory3>(factory3, factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory4 *getFactory4() const noexcept { return firstOf<IDXGIFactory4>(factory4, factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory5 *getFactory5() const noexcept { return firstOf<IDXGIFactory5>(factory5, factory6, factory7); }
-	[[nodiscard]] IDXGIFactory6 *getFactory6() const noexcept { return firstOf<IDXGIFactory6>(factory6, factory7); }
-	[[nodiscard]] IDXGIFactory7 *getFactory7() const noexcept { return firstOf<IDXGIFactory7>(factory7); }
-
-	[[nodiscard]] bool isWrapped(REFIID riid) const noexcept;
+	template<typename T>
+	[[nodiscard]] T &get() const noexcept;
+	[[nodiscard]] HRESULT wrapAdapter(REFIID riid, void **in_out);
 };
 
 }  // namespace dxgi_proxy

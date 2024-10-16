@@ -23,16 +23,20 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
-#include <stdarg.h>
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <utility>
+
+#include <stdarg.h>
 
 #include "inireader/INIReader.h"
 
 #include "dxgi_proxy_conf.h"
 #include "dxgi_proxy_log.h"
 #include "dxgi_proxy_com_ptr.h"
+#include "dxgi_proxy_com_object_chain.h"
 #include "dxgi_proxy_object.h"
 #include "dxgi_proxy_adapter.h"
 #include "dxgi_proxy_factory.h"
+#include "dxgi_proxy.h"

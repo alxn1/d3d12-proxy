@@ -23,7 +23,7 @@ template<typename T, typename U>
 [[nodiscard]] auto queryInterface(const ComPtr<U> &obj) noexcept
 {
 	void *out = nullptr;
-	if(obj->QueryInterface(__uuidof(T), &out) != S_OK) {
+	if(obj && obj->QueryInterface(__uuidof(T), &out) != S_OK) {
 		out = nullptr;
 	}
 	return ComPtr<T>(static_cast<T *>(out));
@@ -47,23 +47,10 @@ template<typename T>
 	return ComPtr<T>{obj};
 }
 
-template<typename T, typename... A>
-[[nodiscard]] auto makeObject(A &&...a)
+template<typename T, typename... P>
+[[nodiscard]] auto makeComObject(P &&...p)
 {
-	return addRef(new T{std::forward<A>(a)...});
-}
-
-template<typename T, typename A1, typename... A>
-[[nodiscard]] T *firstOf(const ComPtr<A1> &a1, const ComPtr<A> &...a) noexcept
-{
-	constexpr auto next_a = sizeof...(A);
-	if constexpr(!next_a) {
-		return a1.get();
-	} else if(a1) {
-		return a1.get();
-	} else {
-		return firstOf<T>(a...);
-	}
+	return addRef(new T{std::forward<P>(p)...});
 }
 
 }  // namespace dxgi_proxy

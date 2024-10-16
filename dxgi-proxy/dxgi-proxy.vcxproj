@@ -173,10 +173,12 @@
     <ClInclude Include="inireader\INIReader.h" />
     <ClInclude Include="dxgi_proxy_conf.h" />
     <ClInclude Include="dxgi_proxy_log.h" />
+    <ClInclude Include="dxgi_proxy_com_object_chain.h" />
     <ClInclude Include="dxgi_proxy_com_ptr.h" />
     <ClInclude Include="dxgi_proxy_object.h" />
     <ClInclude Include="dxgi_proxy_adapter.h" />
     <ClInclude Include="dxgi_proxy_factory.h" />
+    <ClInclude Include="dxgi_proxy.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +186,7 @@
     <ClCompile Include="dxgi_proxy_log.cpp" />
     <ClCompile Include="dxgi_proxy_adapter.cpp" />
     <ClCompile Include="dxgi_proxy_factory.cpp" />
+    <ClCompile Include="dxgi_proxy.cpp" />
     <ClCompile Include="dxgi_proxy_main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
