@@ -101,6 +101,7 @@ HRESULT DXGI_P_API Adapter::GetDesc(DXGI_ADAPTER_DESC *out)
 	DXGI_P_LOG("GetDesc call");
 	const auto hr = get<IDXGIAdapter>().GetDesc(out);
 	if(out && hr == S_OK) {
+		checkTimeout();
 		postprocess(*out);
 	}
 	DXGI_P_LOGF("GetDesc call result: 0x%X", hr);
@@ -119,6 +120,7 @@ HRESULT DXGI_P_API Adapter::GetDesc1(DXGI_ADAPTER_DESC1 *out)
 	DXGI_P_LOG("GetDesc1 call");
 	const auto hr = get<IDXGIAdapter1>().GetDesc1(out);
 	if(out && hr == S_OK) {
+		checkTimeout();
 		postprocess(*out);
 	}
 	DXGI_P_LOGF("GetDesc1 call result: 0x%X", hr);
@@ -132,6 +134,7 @@ HRESULT DXGI_P_API Adapter::GetDesc2(DXGI_ADAPTER_DESC2 *out)
 	DXGI_P_LOG("GetDesc2 call");
 	const auto hr = get<IDXGIAdapter2>().GetDesc2(out);
 	if(out && hr == S_OK) {
+		checkTimeout();
 		postprocess(*out);
 	}
 	DXGI_P_LOGF("GetDesc2 call result: 0x%X", hr);
@@ -155,6 +158,7 @@ HRESULT DXGI_P_API Adapter::QueryVideoMemoryInfo(UINT index, DXGI_MEMORY_SEGMENT
 	DXGI_P_LOGF("QueryVideoMemoryInfo call with '%u' index and '%i' group", index, group);
 	const auto hr = get<IDXGIAdapter3>().QueryVideoMemoryInfo(index, group, out);
 	if(out && hr == S_OK && group == DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL) {
+		checkTimeout();
 		postprocess(*out);
 	}
 	DXGI_P_LOGF("QueryVideoMemoryInfo call result: 0x%X", hr);
@@ -183,6 +187,7 @@ HRESULT DXGI_P_API Adapter::GetDesc3(DXGI_ADAPTER_DESC3 *out)
 	DXGI_P_LOG("GetDesc3 call");
 	const auto hr = get<IDXGIAdapter4>().GetDesc3(out);
 	if(out && hr == S_OK) {
+		checkTimeout();
 		postprocess(*out);
 	}
 	DXGI_P_LOGF("GetDesc3 call result: 0x%X", hr);
@@ -240,10 +245,22 @@ void Adapter::postprocess(T &info) const
 void Adapter::postprocess(DXGI_QUERY_VIDEO_MEMORY_INFO &info) const
 {
 	if(!overrides_disabled) {
-		const auto &overrides = config->overrideSection();
-		if(overrides.gpu_dedicated_memory_size) {
+		if(const auto &overrides = config->overrideSection(); overrides.gpu_dedicated_memory_size) {
 			DXGI_P_LOGF("override dedicated video memory size from %llu to %llu (QVMI)", info.Budget, *overrides.gpu_dedicated_memory_size);
 			info.Budget = *overrides.gpu_dedicated_memory_size;
+		}
+	}
+}
+
+void Adapter::checkTimeout()
+{
+	if(!overrides_disabled) {
+		if(const auto &overrides = config->overrideSection(); overrides.disable_after) {
+			const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - created_at);
+			if(elapsed >= *overrides.disable_after) {
+				DXGI_P_LOGF("disable overrides after %llus", elapsed.count());
+				overrides_disabled = true;
+			}
 		}
 	}
 }

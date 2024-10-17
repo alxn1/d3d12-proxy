@@ -62,6 +62,14 @@ namespace {
 	return std::nullopt;
 }
 
+[[nodiscard]] std::optional<std::chrono::seconds> getOptionalSec(const INIReader &ini, const std::string &section, const std::string &name)
+{
+	if(const auto v = ini.GetInteger(section, name, -1); v >= 0) {
+		return {std::chrono::seconds{v}};
+	}
+	return std::nullopt;
+}
+
 [[nodiscard]] std::string systemDirPath()
 {
 	char path[MAX_PATH]{};
@@ -81,6 +89,7 @@ Config::Config(const std::string &ini_file_path)
 		override_section.gpu_vendor_id = getOptionalUInt(ini, "override", "gpu_vendor_id");
 		override_section.gpu_device_id = getOptionalUInt(ini, "override", "gpu_device_id");
 		override_section.gpu_dedicated_memory_size = getOptionalSizeT(ini, "override", "gpu_dedicated_memory_size");
+		override_section.disable_after = getOptionalSec(ini, "override", "disable_after");
 		dxgi_section.enable_factory_proxy = ini.GetBoolean("dxgi", "enable_factory_proxy", true);
 		dxgi_section.enable_adapter_proxy = ini.GetBoolean("dxgi", "enable_adapter_proxy", true);
 		if(auto path = getOptionalString(ini, "dxgi", "dll_path")) {
@@ -110,6 +119,9 @@ std::string Config::toString() const
 	}
 	if(override_section.gpu_dedicated_memory_size) {
 		s << "gpu_dedicated_memory_size=" << std::dec << std::setw(0) << *override_section.gpu_dedicated_memory_size << "\n";
+	}
+	if(override_section.disable_after) {
+		s << "disable_after=" << override_section.disable_after->count() << "\n";
 	}
 	s << "[dxgi]\n";
 	s << "dll_path=" << dxgi_section.dll_path << "\n";

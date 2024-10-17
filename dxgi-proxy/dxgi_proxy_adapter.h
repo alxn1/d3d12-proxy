@@ -45,11 +45,14 @@ public:
 
 private:
 	using AdapterChain = ComObjectChain<IUnknown, IDXGIObject, IDXGIAdapter, IDXGIAdapter1, IDXGIAdapter2, IDXGIAdapter3, IDXGIAdapter4>;
+	using Timepoint = std::chrono::steady_clock::time_point;
+	using Clock = std::chrono::steady_clock;
 
 	const Config *config{nullptr};
 	const ComPtr<IUnknown> parent;
 	const AdapterChain chain;
-	const bool overrides_disabled{true};
+	const Timepoint created_at{Clock::now()};
+	bool overrides_disabled{true};
 
 	template<typename T>
 	[[nodiscard]] T &get() const noexcept;
@@ -58,6 +61,8 @@ private:
 	template<typename T>
 	void postprocess(T &info) const;
 	void postprocess(DXGI_QUERY_VIDEO_MEMORY_INFO &info) const;
+
+	void checkTimeout();
 };
 
 }  // namespace dxgi_proxy
