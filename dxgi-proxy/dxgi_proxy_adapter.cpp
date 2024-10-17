@@ -157,9 +157,9 @@ HRESULT DXGI_P_API Adapter::QueryVideoMemoryInfo(UINT index, DXGI_MEMORY_SEGMENT
 {
 	DXGI_P_LOGF("QueryVideoMemoryInfo call with '%u' index and '%i' group", index, group);
 	const auto hr = get<IDXGIAdapter3>().QueryVideoMemoryInfo(index, group, out);
-	if(out && hr == S_OK && group == DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL) {
+	if(out && hr == S_OK && index == 0) {
 		checkTimeout();
-		postprocess(*out);
+		postprocess(group, *out);
 	}
 	DXGI_P_LOGF("QueryVideoMemoryInfo call result: 0x%X", hr);
 	return hr;
@@ -204,6 +204,7 @@ T &Adapter::get() const noexcept
 
 bool Adapter::isIntegrated() const noexcept
 {
+	// Unreal Engine detect integrated GPU with this algo
 	DXGI_QUERY_VIDEO_MEMORY_INFO info{};
 	const auto hr = get<IDXGIAdapter3>().QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
 	if(hr != S_OK) {
@@ -242,12 +243,17 @@ void Adapter::postprocess(T &info) const
 	}
 }
 
-void Adapter::postprocess(DXGI_QUERY_VIDEO_MEMORY_INFO &info) const
+void Adapter::postprocess(DXGI_MEMORY_SEGMENT_GROUP group, DXGI_QUERY_VIDEO_MEMORY_INFO &info) const
 {
 	if(!overrides_disabled) {
-		if(const auto &overrides = config->overrideSection(); overrides.gpu_dedicated_memory_size) {
+		const auto &overrides = config->overrideSection();
+		if(overrides.gpu_dedicated_memory_size && group == DXGI_MEMORY_SEGMENT_GROUP_LOCAL) {
 			DXGI_P_LOGF("override dedicated video memory size from %llu to %llu (QVMI)", info.Budget, *overrides.gpu_dedicated_memory_size);
 			info.Budget = *overrides.gpu_dedicated_memory_size;
+		}
+		if(overrides.gpu_non_local_memory_size && group == DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL) {
+			DXGI_P_LOGF("override non local video memory size from %llu to %llu (QVMI)", info.Budget, *overrides.gpu_non_local_memory_size);
+			info.Budget = *overrides.gpu_non_local_memory_size;
 		}
 	}
 }

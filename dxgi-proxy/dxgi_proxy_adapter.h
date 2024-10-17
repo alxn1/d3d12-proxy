@@ -60,7 +60,7 @@ private:
 
 	template<typename T>
 	void postprocess(T &info) const;
-	void postprocess(DXGI_QUERY_VIDEO_MEMORY_INFO &info) const;
+	void postprocess(DXGI_MEMORY_SEGMENT_GROUP group, DXGI_QUERY_VIDEO_MEMORY_INFO &info) const;
 
 	void checkTimeout();
 };

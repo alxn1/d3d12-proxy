@@ -19,6 +19,7 @@ public:
 		std::optional<UINT> gpu_vendor_id;
 		std::optional<UINT> gpu_device_id;
 		std::optional<SIZE_T> gpu_dedicated_memory_size;
+		std::optional<SIZE_T> gpu_non_local_memory_size;
 		std::optional<std::chrono::seconds> disable_after;
 	};
 

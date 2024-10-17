@@ -89,6 +89,7 @@ Config::Config(const std::string &ini_file_path)
 		override_section.gpu_vendor_id = getOptionalUInt(ini, "override", "gpu_vendor_id");
 		override_section.gpu_device_id = getOptionalUInt(ini, "override", "gpu_device_id");
 		override_section.gpu_dedicated_memory_size = getOptionalSizeT(ini, "override", "gpu_dedicated_memory_size");
+		override_section.gpu_non_local_memory_size = getOptionalSizeT(ini, "override", "gpu_non_local_memory_size");
 		override_section.disable_after = getOptionalSec(ini, "override", "disable_after");
 		dxgi_section.enable_factory_proxy = ini.GetBoolean("dxgi", "enable_factory_proxy", true);
 		dxgi_section.enable_adapter_proxy = ini.GetBoolean("dxgi", "enable_adapter_proxy", true);
@@ -119,6 +120,9 @@ std::string Config::toString() const
 	}
 	if(override_section.gpu_dedicated_memory_size) {
 		s << "gpu_dedicated_memory_size=" << std::dec << std::setw(0) << *override_section.gpu_dedicated_memory_size << "\n";
+	}
+	if(override_section.gpu_non_local_memory_size) {
+		s << "gpu_non_local_memory_size=" << std::dec << std::setw(0) << *override_section.gpu_non_local_memory_size << "\n";
 	}
 	if(override_section.disable_after) {
 		s << "disable_after=" << override_section.disable_after->count() << "\n";
