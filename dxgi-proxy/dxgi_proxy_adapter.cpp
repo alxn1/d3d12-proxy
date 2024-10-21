@@ -35,20 +35,17 @@ public:
 
 }  // namespace
 
-HRESULT Adapter::wrap(const Config &config, ComPtr<IUnknown> parent, REFIID riid, void **in_out)
-{
-	ComPtr<IUnknown> unknown{static_cast<IUnknown *>(*in_out)};
-	return makeComObject<Adapter>(config, std::move(parent), std::move(unknown))->QueryInterface(riid, in_out);
-}
-
-Adapter::Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> unknown)
+Adapter::Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> original)
     : config{&config}
     , parent{std::move(parent)}
-    , chain{std::move(unknown)}
+    , chain{std::move(original)}
     , overrides_disabled{config.overrideSection().only_igpu && !isIntegrated()}
 {
 	DXGI_P_LOG("factory is initialized:");
-	chain.enumerate([](const auto *p) { DXGI_P_LOGF("\t%s: 0x%p", typeid(std::decay_t<decltype(*p)>).name(), p); });
+	chain.enumerate([](const auto *p) {
+		DXGI_P_LOGF("\t%s: 0x%p", typeid(std::decay_t<decltype(*p)>).name(), p);
+		return true;
+	});
 	if(overrides_disabled) {
 		DXGI_P_LOG("\toverrides is disabled for dGPU adapter");
 	}
@@ -58,7 +55,7 @@ Adapter::Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown>
 
 HRESULT DXGI_P_API Adapter::QueryInterface(REFIID riid, void **out)
 {
-	DXGI_P_LOGF("QueryInterface call with '%s' riid", format(riid).data());
+	DXGI_P_LOGF("QueryInterface call with '%s' riid", log::format(riid).data());
 	const auto hr = chain.proxiedQueryInterface(this, riid, out);
 	if(hr == S_OK && *out == this) {
 		DXGI_P_LOG("return pointer to self");
@@ -199,7 +196,7 @@ HRESULT DXGI_P_API Adapter::GetDesc3(DXGI_ADAPTER_DESC3 *out)
 template<typename T>
 T &Adapter::get() const noexcept
 {
-	return *chain.anyOf<T>(&AdapterStub::instance());
+	return *chain.anyOr<T>(&AdapterStub::instance());
 }
 
 bool Adapter::isIntegrated() const noexcept

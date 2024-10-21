@@ -72,25 +72,22 @@ public:
 
 }  // namespace
 
-HRESULT Factory::wrap(const Config &config, REFIID riid, void **in_out)
-{
-	ComPtr<IUnknown> unknown{static_cast<IUnknown *>(*in_out)};
-	return makeComObject<Factory>(config, std::move(unknown))->QueryInterface(riid, in_out);
-}
-
-Factory::Factory(const Config &config, ComPtr<IUnknown> unknown)
+Factory::Factory(const Config &config, ComPtr<IUnknown> original)
     : config{&config}
-    , chain{std::move(unknown)}
+    , chain{std::move(original)}
 {
 	DXGI_P_LOG("factory is initialized");
-	chain.enumerate([](const auto *p) { DXGI_P_LOGF("\t%s: 0x%p", typeid(std::decay_t<decltype(*p)>).name(), p); });
+	chain.enumerate([](const auto *p) {
+		DXGI_P_LOGF("\t%s: 0x%p", typeid(std::decay_t<decltype(*p)>).name(), p);
+		return true;
+	});
 }
 
 // IUnknown methods
 
 HRESULT DXGI_P_API Factory::QueryInterface(REFIID riid, void **out)
 {
-	DXGI_P_LOGF("QueryInterface call with '%s' riid", format(riid).data());
+	DXGI_P_LOGF("QueryInterface call with '%s' riid", log::format(riid).data());
 	const auto hr = chain.proxiedQueryInterface(this, riid, out);
 	if(hr == S_OK && *out == this) {
 		DXGI_P_LOG("return pointer to self");
@@ -252,7 +249,7 @@ UINT DXGI_P_API Factory::GetCreationFlags()
 
 HRESULT DXGI_P_API Factory::EnumAdapterByLuid(LUID luid, REFIID riid, void **out)
 {
-	DXGI_P_LOGF("EnumAdapterByLuid call with '%s' riid", format(riid).data());
+	DXGI_P_LOGF("EnumAdapterByLuid call with '%s' riid", log::format(riid).data());
 	auto hr = get<IDXGIFactory4>().EnumAdapterByLuid(luid, riid, out);
 	if(out && hr == S_OK) {
 		hr = wrapAdapter(riid, out);
@@ -277,7 +274,7 @@ HRESULT DXGI_P_API Factory::CheckFeatureSupport(DXGI_FEATURE feature, void *data
 
 HRESULT DXGI_P_API Factory::EnumAdapterByGpuPreference(UINT adapter, DXGI_GPU_PREFERENCE preference, REFIID riid, void **out)
 {
-	DXGI_P_LOGF("EnumAdapterByGpuPreference call with '%s' riid", format(riid).data());
+	DXGI_P_LOGF("EnumAdapterByGpuPreference call with '%s' riid", log::format(riid).data());
 	auto hr = get<IDXGIFactory6>().EnumAdapterByGpuPreference(adapter, preference, riid, out);
 	if(out && hr == S_OK) {
 		hr = wrapAdapter(riid, out);
@@ -303,13 +300,14 @@ HRESULT DXGI_P_API Factory::UnregisterAdaptersChangedEvent(DWORD cookie)
 template<typename T>
 T &Factory::get() const noexcept
 {
-	return *chain.anyOf<T>(&FactoryStub::instance());
+	return *chain.anyOr<T>(&FactoryStub::instance());
 }
 
 HRESULT Factory::wrapAdapter(REFIID riid, void **in_out)
 {
 	if(config->dxgiSection().enable_adapter_proxy) {
-		return Adapter::wrap(*config, addRef(static_cast<IUnknown *>(this)), riid, in_out);
+		return makeComObject<Adapter>(*config, addRef(static_cast<IUnknown *>(this)), ComPtr<IUnknown>{static_cast<IUnknown *>(*in_out)})
+		    ->QueryInterface(riid, in_out);
 	}
 	return S_OK;
 }

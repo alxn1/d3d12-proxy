@@ -5,9 +5,7 @@ namespace dxgi_proxy {
 class Adapter final : public Object<IDXGIAdapter4>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(const Config &config, ComPtr<IUnknown> parent, REFIID riid, void **in_out);
-
-	Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> unknown);
+	Adapter(const Config &config, ComPtr<IUnknown> parent, ComPtr<IUnknown> original);
 
 	// IUnknown methods
 	HRESULT DXGI_P_API QueryInterface(REFIID riid, void **out) override;  // hijacked

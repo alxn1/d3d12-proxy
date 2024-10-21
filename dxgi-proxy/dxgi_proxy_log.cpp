@@ -2,27 +2,25 @@
 
 DXGI_P_LOG_SYSTEM(LOG);
 
-namespace dxgi_proxy {
+namespace dxgi_proxy::log {
 namespace {
-
-inline static const std::string sDxgiLogFilePath = "dxgi_proxy.log";
 
 std::mutex sMutex;
 std::unique_ptr<std::ofstream> sOut;
 
 }  // namespace
 
-void initLog(const Config &config)
+void init(const Config &config)
 {
 	if(config.logSection().enable) {
 		std::unique_lock lock{sMutex};
-		sOut.reset(new std::ofstream{sDxgiLogFilePath});
+		sOut.reset(new std::ofstream{"dxgi_proxy.log"});
 		lock.unlock();
 		log("logging is enabled");
 	}
 }
 
-bool isLogEnabled() noexcept
+bool enabled() noexcept
 {
 	return static_cast<bool>(sOut);
 }
@@ -67,4 +65,4 @@ std::string format(const GUID &guid)
 	              guid.Data4[7]);
 }
 
-}  // namespace dxgi_proxy
+}  // namespace dxgi_proxy::log

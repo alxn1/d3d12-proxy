@@ -5,9 +5,7 @@ namespace dxgi_proxy {
 class Factory final : public Object<IDXGIFactory7>
 {
 public:
-	[[nodiscard]] static HRESULT wrap(const Config &config, REFIID riid, void **in_out);
-
-	Factory(const Config &config, ComPtr<IUnknown> unknown);
+	Factory(const Config &config, ComPtr<IUnknown> original);
 
 	// IUnknown methods
 	HRESULT DXGI_P_API QueryInterface(REFIID riid, void **out) override;  // hijacked
